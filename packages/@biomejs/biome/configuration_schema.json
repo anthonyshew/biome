@@ -1870,13 +1870,6 @@
 						{ "type": "null" }
 					]
 				},
-				"noDuplicateJsonKeys": {
-					"description": "Disallow two keys with the same name inside a JSON object.",
-					"anyOf": [
-						{ "$ref": "#/definitions/RuleConfiguration" },
-						{ "type": "null" }
-					]
-				},
 				"noDuplicateSelectorsKeyframeBlock": {
 					"description": "Disallow duplicate selectors within keyframe blocks.",
 					"anyOf": [
@@ -3353,9 +3346,9 @@
 					]
 				},
 				"noDuplicateObjectKeys": {
-					"description": "Prevents object literals having more than one property declaration for the same name.",
+					"description": "Disallow two keys with the same name inside objects.",
 					"anyOf": [
-						{ "$ref": "#/definitions/RuleFixConfiguration" },
+						{ "$ref": "#/definitions/RuleConfiguration" },
 						{ "type": "null" }
 					]
 				},
