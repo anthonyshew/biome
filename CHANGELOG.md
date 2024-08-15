@@ -52,7 +52,7 @@ our [guidelines for writing a good changelog entry](https://github.com/biomejs/b
   - `--log-prefix-name`: a prefix that's added to the file name of the logs. It defaults to `server.log`. The commands also accepts the environment variable `BIOME_LOG_PREFIX_NAME`.
 
   @Contributed by @ematipico
-   
+
 
 #### Enhancements
 
@@ -259,6 +259,8 @@ our [guidelines for writing a good changelog entry](https://github.com/biomejs/b
   Global declarations files (declarations files without exports and imports) are still ignored.
 
   Contributed by @Conaclos
+
+- The rule `noDuplicateObjectKeys` now works for JSON and JSONC files. Contributed by @ematipico
 
 #### Bug fixes
 
