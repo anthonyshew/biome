@@ -2588,8 +2588,8 @@ fn check_json_files() {
         r#"{
 	"linter": {
 		"rules": {
-			"nursery": {
-				"noDuplicateJsonKeys": "error"
+			"suspicious": {
+				"noDuplicateObjectKeys": "error"
 			}
 		}
 	}
