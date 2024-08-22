@@ -6,6 +6,8 @@ export interface SupportsFeatureParams {
 }
 export type FeatureName = FeatureKind[];
 export interface BiomePath {
+	is_fixed: boolean;
+	kind: FileKind;
 	path: string;
 }
 export type FeatureKind =
@@ -14,6 +16,11 @@ export type FeatureKind =
 	| "OrganizeImports"
 	| "Search"
 	| "Assists";
+export type FileKind = FileKindFlag[];
+/**
+ * The priority of the file
+ */
+export type FileKindFlag = "Config" | "Manifest" | "ToInspect" | "ToHandle";
 export interface SupportsFeatureResult {
 	reason?: SupportKind;
 }
@@ -2383,12 +2390,9 @@ export interface RegisterProjectFolderParams {
 	setAsCurrentWorkspace: boolean;
 }
 export type ProjectKey = string;
-export interface UpdateProjectParams {
-	path: BiomePath;
-}
-export interface OpenProjectParams {
+export interface SetManifestForProjectParams {
 	content: string;
-	path: BiomePath;
+	manifest_path: BiomePath;
 	version: number;
 }
 export interface OpenFileParams {
@@ -3061,8 +3065,7 @@ export interface Workspace {
 	registerProjectFolder(
 		params: RegisterProjectFolderParams,
 	): Promise<ProjectKey>;
-	updateCurrentManifest(params: UpdateProjectParams): Promise<void>;
-	openProject(params: OpenProjectParams): Promise<void>;
+	setManifestForProject(params: SetManifestForProjectParams): Promise<void>;
 	openFile(params: OpenFileParams): Promise<void>;
 	changeFile(params: ChangeFileParams): Promise<void>;
 	closeFile(params: CloseFileParams): Promise<void>;
@@ -3095,11 +3098,8 @@ export function createWorkspace(transport: Transport): Workspace {
 		registerProjectFolder(params) {
 			return transport.request("biome/register_project_folder", params);
 		},
-		updateCurrentManifest(params) {
-			return transport.request("biome/update_current_manifest", params);
-		},
-		openProject(params) {
-			return transport.request("biome/open_project", params);
+		setManifestForProject(params) {
+			return transport.request("biome/set_manifest_for_project", params);
 		},
 		openFile(params) {
 			return transport.request("biome/open_file", params);
