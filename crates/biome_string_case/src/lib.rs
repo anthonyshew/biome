@@ -1,5 +1,7 @@
 //! Identify string case and convert to various string cases.
 
+use std::borrow::Cow;
+
 /// Represents the [Case] of a string.
 ///
 /// Note that some cases are superset of others.
@@ -405,8 +407,60 @@ const LEADING_BIT_INDEX_TO_CASE: [Case; 10] = [
     Case::Unknown,
 ];
 
+pub trait StrExtension {
+    type Str: ToOwned + ?Sized;
+    /// Returns the same value as String::to_lowercase. The only difference
+    /// is that this functions returns ```Cow``` and does not allocate
+    /// if the string is already in lowercase.
+    fn to_ascii_lowercase_cow(&self) -> Cow<Self::Str>;
+}
+
+impl StrExtension for str {
+    type Str = str;
+    fn to_ascii_lowercase_cow(&self) -> Cow<Self::Str> {
+        let has_ascii_uppercase = self.bytes().any(|b| b.is_ascii_uppercase());
+        if has_ascii_uppercase {
+            Cow::Owned(self.to_ascii_lowercase())
+        } else {
+            Cow::Borrowed(self)
+        }
+    }
+}
+
+impl StrExtension for String {
+    type Str = str;
+    #[inline(always)]
+    fn to_ascii_lowercase_cow(&self) -> Cow<Self::Str> {
+        self.as_str().to_ascii_lowercase_cow()
+    }
+}
+
+impl StrExtension for std::ffi::OsStr {
+    type Str = std::ffi::OsStr;
+    fn to_ascii_lowercase_cow(&self) -> Cow<Self::Str> {
+        let has_ascii_uppercase = self
+            .as_encoded_bytes()
+            .iter()
+            .any(|b| b.is_ascii_uppercase());
+        if has_ascii_uppercase {
+            Cow::Owned(self.to_ascii_lowercase())
+        } else {
+            Cow::Borrowed(self)
+        }
+    }
+}
+
+impl StrExtension for std::ffi::OsString {
+    type Str = std::ffi::OsStr;
+    fn to_ascii_lowercase_cow(&self) -> Cow<Self::Str> {
+        self.as_os_str().to_ascii_lowercase_cow()
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use std::ffi::OsStr;
+
     use super::*;
 
     #[test]
@@ -783,5 +837,27 @@ mod tests {
             }
         }
         assert_eq!(cases.into_iter().size_hint().1, Some(max_count));
+    }
+
+    #[test]
+    fn to_ascii_lowercase_cow() {
+        assert_eq!("test", "Test".to_ascii_lowercase_cow());
+        assert_eq!(
+            OsStr::new("test"),
+            OsStr::new("Test").to_ascii_lowercase_cow()
+        );
+
+        assert_eq!("test", "teSt".to_ascii_lowercase_cow());
+        assert_eq!("te😀st", "te😀St".to_ascii_lowercase_cow());
+        assert_eq!(
+            OsStr::new("test"),
+            OsStr::new("teSt").to_ascii_lowercase_cow()
+        );
+
+        assert!(matches!("test".to_ascii_lowercase_cow(), Cow::Borrowed(_)));
+        assert!(matches!(
+            OsStr::new("test").to_ascii_lowercase_cow(),
+            Cow::Borrowed(_)
+        ));
     }
 }
